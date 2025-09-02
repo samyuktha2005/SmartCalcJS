@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Scientific Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    #calculator {
+      width: 300px;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    #display {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      text-align: right;
+    }
+    #keys {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-gap: 10px;
+    }
+    .key {
+      background-color: #f0f0f0;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .key:hover {
+      background-color: #e0e0e0;
+    }
+    .key:active {
+      background-color: #d0d0d0;
+    }
+    #history {
+      margin-top: 20px;
+      border-top: 1px solid #ccc;
+      padding-top: 10px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .history-item {
+      font-size: 18px;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div id="calculator">
+    <h2>Scientific Calculator</h2>
+    <div id="display">0</div>
+    <div id="keys">
+      <button class="key" id="clear">C</button>
+      <button class="key" id="backspace">←</button>
+      <button class="key" id="sqrt">√</button>
+      <button class="key" id="power">x^2</button>
+      <button class="key" id="7">7</button>
+      <button class="key" id="8">8</button>
+      <button class="key" id="9">9</button>
+      <button class="key" id="divide">/</button>
+      <button class="key" id="4">4</button>
+      <button class="key" id="5">5</button>
+      <button class="key" id="6">6</button>
+      <button class="key" id="multiply">*</button>
+      <button class="key" id="1">1</button>
+      <button class="key" id="2">2</button>
+      <button class="key" id="3">3</button>
+      <button class="key" id="subtract">-</button>
+      <button class="key" id="0">0</button>
+      <button class="key" id="decimal">.</button>
+      <button class="key" id="add">+</button>
+      <button class="key" id="equals">=</button>
+      <button class="key" id="sin">sin</button>
+      <button class="key" id="cos">cos</button>
+      <button class="key" id="tan">tan</button>
+      <button class="key" id="log">log</button>
+      <button class="key" id="ln">ln</button>
+      <button class="key" id="e">e</button>
+      <button class="key" id="pi">π</button>
+    </div>
+    <div id="history">
+      <h3>History</h3>
+    </div>
+  </div>
+
+  <script>
+    const displayDiv = document.getElementById('display');
+const keysDiv = document.getElementById('keys');
+const historyDiv = document.getElementById('history');
+let displayValue = '';
+let inputString = '';
+let operation = '';
+let num1 = null;
+let num2 = null;
+let resetDisplay = false;
+
+keysDiv.addEventListener('click', (event) => {
+  const key = event.target.id;
+
+  if (!event.target.classList.contains('key')) {
+    return;
+  }
+
+  switch (key) {
+    case 'clear':
+      displayValue = '';
+      inputString = '';
+      operation = '';
+      num1 = null;
+      num2 = null;
+      break;
+
+    case 'backspace':
+      if (displayValue.length > 1) {
+        displayValue = displayValue.slice(0, -1);
+        inputString = inputString.slice(0, -1);
+      } else {
+        displayValue = '';
+        inputString = '';
+      }
+      break;
+
+    case 'sqrt':
+      inputString = '√(' + displayValue + ')';
+      displayValue = Math.sqrt(parseFloat(displayValue)).toString();
+      resetDisplay = true;
+      break;
+
+    case 'power':
+      inputString = '(' + displayValue + ')^2';
+      displayValue = Math.pow(parseFloat(displayValue), 2).toString();
+      resetDisplay = true;
+      break;
+
+    case 'sin':
+      inputString = 'sin(' + displayValue + ')';
+      displayValue = Math.sin(parseFloat(displayValue) * Math.PI / 180).toString();
+      resetDisplay = true;
+      break;
+
+    case 'cos':
+      inputString = 'cos(' + displayValue + ')';
+      displayValue = Math.cos(parseFloat(displayValue) * Math.PI / 180).toString();
+      resetDisplay = true;
+      break;
+
+    case 'tan':
+      inputString = 'tan(' + displayValue + ')';
+      displayValue = Math.tan(parseFloat(displayValue) * Math.PI / 180).toString();
+      resetDisplay = true;
+      break;
+
+    case 'log':
+      inputString = 'log(' + displayValue + ')';
+      displayValue = Math.log10(parseFloat(displayValue)).toString();
+      resetDisplay = true;
+      break;
+
+    case 'ln':
+      inputString = 'ln(' + displayValue + ')';
+      displayValue = Math.log(parseFloat(displayValue)).toString();
+      resetDisplay = true;
+      break;
+
+    case 'e':
+      displayValue = Math.E.toString();
+      inputString = 'e';
+      resetDisplay = true;
+      break;
+
+    case 'pi':
+      displayValue = Math.PI.toString();
+      inputString = 'π';
+      resetDisplay = true;
+      break;
+
+    case 'add':
+    case 'subtract':
+    case 'multiply':
+    case 'divide':
+      if (num1 === null) {
+        num1 = parseFloat(displayValue);
+      } else if (operation) {
+        num2 = parseFloat(displayValue);
+        displayValue = operate(num1, num2, operation).toString();
+        num1 = parseFloat(displayValue);
+        num2 = null;
+      }
+      operation = key;
+      resetDisplay = true;
+      inputString += ' ' + event.target.innerText + ' ';
+      break;
+
+    case 'equals':
+      if (num1 !== null && operation !== '') {
+        num2 = parseFloat(displayValue);
+        displayValue = operate(num1, num2, operation).toString();
+        addToHistory(inputString + ' = ' + displayValue);
+        num1 = null;
+        num2 = null;
+        operation = '';
+        resetDisplay = true;
+        inputString = displayValue;  // Update inputString to display the final result
+      }
+      break;
+
+    default:
+      if (resetDisplay) {
+        displayValue = key;
+        resetDisplay = false;
+      } else {
+        if (displayValue === '0') {
+          displayValue = key;
+        } else {
+          displayValue += key;
+        }
+      }
+      inputString += key;
+  }
+  displayDiv.innerText = inputString;  // Update this line to display the input string
+});
+
+function operate(num1, num2, operation) {
+  switch (operation) {
+    case 'add':
+      return num1 + num2;
+    case 'subtract':
+      return num1 - num2;
+    case 'multiply':
+      return num1 * num2;
+    case 'divide':
+      return num1 / num2;
+    default:
+      return num2;
+  }
+}
+
+function addToHistory(entry) {
+  const historyItem = document.createElement('div');
+  historyItem.classList.add('history-item');
+  historyItem.innerText = entry;
+  historyDiv.appendChild(historyItem);
+}
+
+  </script>
+</body>
+</html>
